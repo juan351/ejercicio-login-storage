@@ -29,6 +29,71 @@ const baseDeDatos = {
 };
 
 // ACTIVIDAD
+const formulario = document.forms[0];
+const inputMail = this.document.getElementById("email-input");
+const inputPass = this.document.getElementById("password-input"); 
+let smallElement = document.createElement("small");
+
+window.addEventListener("load", function(){ 
+    formulario.addEventListener("submit", enviarFormulario);
+    renderizarPagina();
+    inputMail.addEventListener("blur", function(){
+      validarMail(inputMail.value)
+    });
+});
+
+function enviarFormulario(e){
+  e.preventDefault()
+    usuario = baseDeDatos["usuarios"].find(usuario => usuario.email === inputMail.value);
+    let smallElement = document.createElement("small");
+    if(usuario){
+      if (usuario.password === inputPass.value){
+        delete usuario.password;
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        renderizarPagina();        
+      }else{
+        smallElement.innerText = "Contraseña incorrecta";
+        formulario.appendChild(smallElement);
+        setTimeout(()=>smallElement.remove(),5000)
+    }
+  }else{
+    if(validarMail(inputMail.value)){
+      smallElement.innerText = "Usuario incorrecto";
+      formulario.appendChild(smallElement);
+      setTimeout(()=>smallElement.remove(),5000)  
+    }    
+  }
+};
+
+function renderizarPagina(){
+  if(localStorage["usuario"]){
+    usuario = JSON.parse(localStorage["usuario"]);
+    formulario.classList.add("hidden");
+    document.querySelector("h1").innerHTML = `<h1>Bienvenido al sitio ${usuario.name}</h1>`
+    let boton = document.createElement("button");
+    boton.id = "cerrar-sesion";
+    boton.classList.add("login-btn");
+    boton.innerText = "Cerrar sesión";
+    document.querySelector("main").appendChild(boton);
+    boton.addEventListener("click", function(){
+      localStorage.clear();
+      location.reload();
+    });
+  }
+}
+
+function validarMail(mail){
+  let emailRegex = new RegExp("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$");
+  if (emailRegex.test(mail)){
+    return true;
+  }else{
+    smallElement.innerText = "La dirección de e-mail no es válida"
+    formulario.appendChild(smallElement);
+    setTimeout(()=>smallElement.remove(),5000);
+    return false;
+  }
+  
+}
 
 // Paso a paso:
 
